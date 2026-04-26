@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>credmux Pitch Deck</title>
+<meta name="description" content="Interactive 8-slide pitch deck for credmux.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #000;
+  --bg2: #0a0a0a;
+  --bg3: #111;
+  --border: #1e1e1e;
+  --green: #00ff88;
+  --red: #ff4444;
+  --yellow: #ffd43b;
+  --text: #f0f0f0;
+  --muted: #777;
+  --dim: #333;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(circle at top right, rgba(0, 255, 136, 0.06), transparent 24%), #000;
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace;
+}
+
+body {
+  position: relative;
+}
+
+button {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.chrome {
+  position: fixed;
+  top: 18px;
+  left: 22px;
+  right: 22px;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+
+.brand,
+.chrome-right,
+.nav-arrow,
+.dot,
+.overview-card,
+.lang-btn {
+  pointer-events: auto;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--green);
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+
+.chrome-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chip {
+  border: 1px solid var(--dim);
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+  padding: 7px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.lang-toggle {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--dim);
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 7px 11px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.lang-btn.active {
+  background: var(--green);
+  color: #000;
+  font-weight: 700;
+}
+
+.deck-shell {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.deck-stage {
+  position: relative;
+  width: min(calc(100vw - 64px), calc((100vh - 64px) * 16 / 9));
+  aspect-ratio: 16 / 9;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 60%),
+    #000;
+  background-size: 40px 40px, 40px 40px, 100% 100%, 100% 100%;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+}
+
+.deck-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent 15%, transparent 85%, rgba(255, 255, 255, 0.02));
+  pointer-events: none;
+}
+
+.slides {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  padding: 80px 88px;
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+}
+
+.slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.slide-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.slide-title {
+  font-family: "Syne", sans-serif;
+  font-size: 44px;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.slide-sub {
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--muted);
+  max-width: 720px;
+}
+
+.muted { color: var(--muted); }
+.green { color: var(--green); }
+.yellow { color: var(--yellow); }
+.red { color: var(--red); }
+
+.lang-block .ko,
+.lang-block .en {
+  display: none;
+}
+
+.title-slide {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+}
+
+.title-logo {
+  color: var(--green);
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+}
+
+.title-center {
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.title-word {
+  font-family: "Syne", sans-serif;
+  font-size: clamp(84px, 9vw, 120px);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  font-weight: 800;
+}
+
+.type-cursor::after,
+.cursor-after::after {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 1em;
+  margin-left: 10px;
+  transform: translateY(0.08em);
+  background: var(--green);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { opacity: 0; }
+}
+
+.title-tagline {
+  margin-top: 26px;
+  font-size: 24px;
+  color: var(--text);
+  opacity: 0;
+  animation: riseIn 0.6s ease 0.9s forwards;
+}
+
+.title-meta {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 12px;
+  color: var(--dim);
+  opacity: 0;
+  animation: riseIn 0.6s ease 1.2s forwards;
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.problem-grid,
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.85fr;
+  gap: 56px;
+  height: 100%;
+}
+
+.problem-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.problem-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.grid-fade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 68%;
+  height: 48%;
+  background:
+    linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: radial-gradient(circle at 70% 20%, black, transparent 72%);
+}
+
+.mega-number {
+  font-family: "Syne", sans-serif;
+  font-size: 132px;
+  line-height: 0.9;
+  color: var(--green);
+  letter-spacing: -0.06em;
+}
+
+.problem-kicker {
+  font-size: 22px;
+  margin-top: 12px;
+}
+
+.problem-list {
+  margin-top: 42px;
+  display: grid;
+  gap: 12px;
+}
+
+.problem-list li {
+  list-style: none;
+  font-size: 20px;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.slide.active .problem-list li {
+  animation: riseIn 0.45s ease forwards;
+}
+
+.slide.active .problem-list li:nth-child(1) { animation-delay: 0.4s; }
+.slide.active .problem-list li:nth-child(2) { animation-delay: 0.6s; }
+.slide.active .problem-list li:nth-child(3) { animation-delay: 0.8s; }
+
+.problem-list li::before {
+  content: "·";
+  color: var(--green);
+  margin-right: 10px;
+}
+
+.alert-box {
+  border: 1px solid rgba(255, 68, 68, 0.35);
+  background: linear-gradient(180deg, rgba(255, 68, 68, 0.13), rgba(255, 68, 68, 0.02));
+  padding: 22px 24px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.alert-box strong {
+  display: block;
+  color: var(--red);
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.alert-copy {
+  margin-top: 26px;
+  font-family: "Syne", sans-serif;
+  font-size: 34px;
+  line-height: 1.05;
+  max-width: 320px;
+}
+
+.gap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 38px;
+}
+
+.gap-card {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 370px;
+}
+
+.gap-card.dimmed {
+  opacity: 0.68;
+}
+
+.gap-card.highlight {
+  border-color: rgba(0, 255, 136, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(0, 255, 136, 0.12);
+}
+
+.gap-card h3 {
+  font-family: "Syne", sans-serif;
+  font-size: 30px;
+}
+
+.card-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+}
+
+.card-line span:last-child {
+  color: var(--text);
+}
+
+.quote-line {
+  margin-top: 30px;
+  text-align: center;
+  font-family: "Syne", sans-serif;
+  font-size: 28px;
+  line-height: 1.18;
+}
+
+.solution-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 34px;
+  height: 100%;
+}
+
+.solution-rows {
+  display: grid;
+  gap: 16px;
+  align-content: center;
+}
+
+.solution-row {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 22px 24px;
+  opacity: 0.26;
+  transform: translateY(12px);
+  transition: opacity 0.28s ease, transform 0.28s ease, border-color 0.28s ease;
+}
+
+.solution-row.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.solution-row.active-step {
+  border-color: rgba(0, 255, 136, 0.35);
+}
+
+.row-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.row-head .emoji {
+  font-size: 22px;
+}
+
+.row-head .name {
+  font-family: "Syne", sans-serif;
+  font-size: 28px;
+}
+
+.row-head .kind {
+  color: var(--green);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.row-body {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.terminal-box {
+  border: 1px solid rgba(0, 255, 136, 0.22);
+  background:
+    linear-gradient(180deg, rgba(0, 255, 136, 0.04), transparent 40%),
+    var(--bg2);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  position: relative;
+}
+
+.terminal-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.025) 2px, transparent 2px, transparent 6px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.terminal-line {
+  position: relative;
+  z-index: 1;
+  font-size: 16px;
+}
+
+.terminal-line .prompt {
+  color: var(--green);
+}
+
+.demo-slide {
+  position: relative;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.demo-slide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.5;
+}
+
+.demo-slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.03) 2px, transparent 2px, transparent 5px);
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.demo-box {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(0, 255, 136, 0.26);
+  background: rgba(0, 0, 0, 0.78);
+  padding: 28px 36px;
+  min-width: 58%;
+}
+
+.demo-command {
+  font-size: 34px;
+  color: var(--text);
+}
+
+.demo-caption {
+  margin-top: 42px;
+  position: relative;
+  z-index: 1;
+  font-family: "Syne", sans-serif;
+  font-size: 46px;
+}
+
+.demo-arrow {
+  margin-top: 18px;
+  color: var(--green);
+  font-size: 22px;
+}
+
+.table-wrap {
+  margin-top: 28px;
+  border: 1px solid var(--border);
+}
+
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 18px;
+}
+
+.diff-table th,
+.diff-table td {
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.diff-table th:first-child,
+.diff-table td:first-child {
+  text-align: left;
+}
+
+.diff-table th {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.diff-table .ours {
+  color: var(--green);
+  border-top: 2px solid var(--green);
+}
+
+.roadmap-left,
+.roadmap-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.roadmap-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 255, 136, 0.35);
+  color: var(--green);
+  width: fit-content;
+  margin: 16px 0 20px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.roadmap-list {
+  display: grid;
+  gap: 12px;
+  font-size: 22px;
+}
+
+.roadmap-list li,
+.timeline-list li {
+  list-style: none;
+}
+
+.roadmap-list li::before,
+.timeline-list li::before {
+  content: "·";
+  color: var(--green);
+  margin-right: 10px;
+}
+
+.timeline-list {
+  position: relative;
+  display: grid;
+  gap: 20px;
+  margin-top: 22px;
+  padding-left: 22px;
+}
+
+.timeline-list::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.timeline-list li {
+  position: relative;
+  font-size: 20px;
+  color: var(--muted);
+}
+
+.timeline-list li strong {
+  display: block;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.timeline-list li::after {
+  content: "";
+  position: absolute;
+  left: -26px;
+  top: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--green);
+}
+
+.roadmap-foot {
+  margin-top: 34px;
+  font-family: "Syne", sans-serif;
+  font-size: 34px;
+}
+
+.close-slide {
+  position: relative;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.close-slide::before {
+  content: "";
+  position: absolute;
+  left: -8%;
+  bottom: -18%;
+  width: 46%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(0, 255, 136, 0.18), transparent 65%);
+}
+
+.close-quote {
+  position: relative;
+  z-index: 1;
+  font-family: "Syne", sans-serif;
+  font-size: 72px;
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.close-meta {
+  position: relative;
+  z-index: 1;
+  margin-top: 42px;
+}
+
+.close-version {
+  font-size: 30px;
+  color: var(--text);
+}
+
+.close-link {
+  margin-top: 14px;
+  font-size: 18px;
+  color: var(--green);
+}
+
+.close-foot {
+  margin-top: 38px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.controls {
+  position: fixed;
+  right: 24px;
+  bottom: 22px;
+  left: 24px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.left-controls,
+.right-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-arrow {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid var(--dim);
+  background: rgba(0, 0, 0, 0.72);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.nav-arrow:hover,
+.dot:hover,
+.overview-card:hover {
+  border-color: var(--green);
+}
+
+.progress {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 56px;
+  text-align: right;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--dim);
+  background: transparent;
+  cursor: pointer;
+}
+
+.dot.active {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.overview {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(10px);
+  display: none;
+  z-index: 100;
+  padding: 84px 60px 40px;
+}
+
+.overview.open {
+  display: block;
+}
+
+.overview-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.overview-title {
+  font-family: "Syne", sans-serif;
+  font-size: 40px;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.overview-card {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  min-height: 150px;
+  padding: 18px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.overview-card.active {
+  border-color: rgba(0, 255, 136, 0.35);
+}
+
+.overview-card span:first-child {
+  color: var(--green);
+  font-size: 12px;
+}
+
+.overview-card strong {
+  font-family: "Syne", sans-serif;
+  font-size: 25px;
+  line-height: 1.05;
+}
+
+@media (max-width: 1200px) {
+  .slide { padding: 72px 72px; }
+  .mega-number { font-size: 108px; }
+  .close-quote { font-size: 58px; }
+  .overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .slide { padding: 56px 56px; }
+  .gap-grid { grid-template-columns: 1fr; }
+  .solution-grid,
+  .problem-grid,
+  .roadmap-grid {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .overview { padding: 72px 28px 28px; }
+}
+</style>
+</head>
+<body>
+<div class="chrome">
+  <a class="brand" href="index.html">credmux</a>
+  <div class="chrome-right">
+    <div class="chip">F fullscreen · Esc overview</div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ko')">KO</button>
+    </div>
+  </div>
+</div>
+
+<div class="deck-shell">
+  <div class="deck-stage" id="deckStage">
+    <div class="slides">
+      <section class="slide active" data-slide="1">
+        <div class="slide-inner title-slide lang-block">
+          <div class="title-logo">credmux</div>
+          <div class="title-center">
+            <div class="title-word type-cursor" id="typedTitle"></div>
+            <div class="title-tagline">
+              <span class="en">Agent Identity Layer for the AI Era</span>
+              <span class="ko">AI 시대를 위한 에이전트 아이덴티티 레이어</span>
+            </div>
+          </div>
+          <div class="title-meta">
+            <span class="en">github.com/baekho-lim/credmux · MIT · launched today</span>
+            <span class="ko">github.com/baekho-lim/credmux · MIT · 오늘 런칭</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-slide="2">
+        <div class="slide-inner problem-grid lang-block">
+          <div class="problem-left">
+            <div class="mega-number">63%</div>
+            <div class="problem-kicker">
+              <span class="en">of active vibe coders<br>are non-developers</span>
+              <span class="ko">활성 바이브코더의 63%는<br>비개발자입니다</span>
+            </div>
+            <div class="slide-sub" style="max-width:520px;margin-top:28px;">
+              <span class="en">They store tokens in places never designed for incident response.</span>
+              <span class="ko">이들은 침해 대응을 전혀 고려하지 않은 곳에 토큰을 저장합니다.</span>
+            </div>
+            <ul class="problem-list">
+              <li>KakaoTalk notes</li>
+              <li>Notion pages</li>
+              <li>iCloud memo</li>
+            </ul>
+          </div>
+          <div class="problem-right lang-block">
+            <div class="grid-fade"></div>
+            <div>
+              <div class="alert-box">
+                <strong>🔴 Vercel breached</strong>
+                <div class="muted">
+                  <span class="en">April 19, 2026</span>
+                  <span class="ko">2026년 4월 19일</span>
+                </div>
+              </div>
+              <div class="alert-copy">
+                <span class="en">They have no idea<br>their tokens<br>are exposed.</span>
+                <span class="ko">자기 토큰이<br>노출됐는지조차<br>모릅니다.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-slide="3">
+        <div class="slide-inner lang-block">
+          <div class="slide-title">
+            <span class="en">The gap between secret scanners and<br>real agent security</span>
+            <span class="ko">시크릿 스캐너와 실제 에이전트 보안 사이의 간극</span>
+          </div>
+          <div class="gap-grid">
+            <div class="gap-card dimmed">
+              <div>
+                <h3>Gitleaks / TruffleHog</h3>
+                <div class="slide-sub" style="margin-top:10px;">Before commit only</div>
+              </div>
+              <div>
+                <div class="card-line"><span>git history</span><span class="green">yes</span></div>
+                <div class="card-line"><span>.env files</span><span class="red">no</span></div>
+                <div class="card-line"><span>Agents</span><span class="red">no</span></div>
+                <div class="card-line" style="border-bottom:none;"><span>Non-devs</span><span class="red">no</span></div>
+              </div>
+            </div>
+            <div class="gap-card dimmed">
+              <div>
+                <h3>API Stronghold</h3>
+                <div class="slide-sub" style="margin-top:10px;">OpenClaw only</div>
+              </div>
+              <div>
+                <div class="card-line"><span>Cloud-based</span><span class="green">yes</span></div>
+                <div class="card-line"><span>Open source</span><span class="red">no</span></div>
+                <div class="card-line"><span>All agents</span><span class="red">no</span></div>
+                <div class="card-line" style="border-bottom:none;"><span>Telegram UI</span><span class="red">no</span></div>
+              </div>
+            </div>
+            <div class="gap-card highlight">
+              <div>
+                <h3 class="green">credmux</h3>
+                <div class="slide-sub" style="margin-top:10px;color:var(--green);">Right now. Everywhere.</div>
+              </div>
+              <div>
+                <div class="card-line"><span>Filesystem</span><span class="green">yes</span></div>
+                <div class="card-line"><span>All agents</span><span class="green">yes</span></div>
+                <div class="card-line"><span>All terminals</span><span class="green">yes</span></div>
+                <div class="card-line"><span>Telegram UI</span><span class="green">yes</span></div>
+                <div class="card-line" style="border-bottom:none;"><span>cmux native</span><span class="green">yes</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="quote-line">
+            <span class="en">“Existing tools guard the commit.<br>credmux guards the moment.”</span>
+            <span class="ko">“기존 도구는 커밋 전을 지키고,<br>credmux는 지금 이 순간을 지킵니다.”</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-slide="4" data-steps="3">
+        <div class="slide-inner solution-grid lang-block" id="solutionSlide">
+          <div class="solution-rows">
+            <div class="solution-row" data-step="1">
+              <div class="row-head">
+                <span class="emoji">🛡️</span>
+                <span class="name">SENTINEL</span>
+                <span class="kind">Breach Notifier</span>
+              </div>
+              <div class="row-body">
+                <span class="en">Platform hacked → your Telegram bot tells you first. Button tap → scan → guided rotation. No terminal.</span>
+                <span class="ko">플랫폼 해킹 → Telegram 봇이 먼저 알려줍니다. 버튼 탭 → 스캔 → 교체 안내. 터미널 불필요.</span>
+              </div>
+            </div>
+            <div class="solution-row" data-step="2">
+              <div class="row-head">
+                <span class="emoji">🔍</span>
+                <span class="name">VAULT</span>
+                <span class="kind">Discovery + Rotation</span>
+              </div>
+              <div class="row-body">
+                <span class="en">TruffleHog 700+ patterns across your entire Mac. Real tokens. Right now. Not just git history.</span>
+                <span class="ko">TruffleHog 700개 패턴으로 맥 전체 스캔. 실제 토큰. 지금 이 순간. git 히스토리만이 아닙니다.</span>
+              </div>
+            </div>
+            <div class="solution-row" data-step="3">
+              <div class="row-head">
+                <span class="emoji">🔐</span>
+                <span class="name">GUARDIAN</span>
+                <span class="kind">Agent Isolation</span>
+              </div>
+              <div class="row-body">
+                <span class="en">cmux workspace = credential boundary. Agent tries to leak? Blocked → sidebar alert.</span>
+                <span class="ko">cmux 워크스페이스 = 자격증명 경계. 에이전트가 유출 시도? 차단 → 사이드바 경고.</span>
+              </div>
+            </div>
+          </div>
+          <div class="terminal-box">
+            <div class="terminal-line"><span class="prompt">$</span> credmux breach-drill vercel</div>
+            <div class="terminal-line green" id="terminalTyping"></div>
+            <div class="terminal-line muted">
+              <span class="en">tap again to reveal the next component</span>
+              <span class="ko">다시 넘기면 다음 컴포넌트가 나타납니다</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-slide="5">
+        <div class="slide-inner demo-slide lang-block">
+          <div>
+            <div class="demo-box">
+              <div class="demo-command"><span class="green">$</span> credmux breach-drill vercel</div>
+            </div>
+            <div class="demo-caption">
+              <span class="en">30 seconds. Watch.</span>
+              <span class="ko">30초입니다. 보시면 됩니다.</span>
+            </div>
+            <div class="demo-arrow">→ demo</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-slide="6">
+        <div class="slide-inner lang-block">
+          <div class="slide-title">
+            <span class="en">What credmux does that nothing else does.</span>
+            <span class="ko">credmux만이 하는 것.</span>
+          </div>
+          <div class="table-wrap">
+            <table class="diff-table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Gitleaks</th>
+                  <th>TruffleHog</th>
+                  <th>API Stronghold</th>
+                  <th class="ours">credmux</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Filesystem scan</td><td>no</td><td>no</td><td>no</td><td class="green">yes</td></tr>
+                <tr><td>Breach alert</td><td>no</td><td>no</td><td>no</td><td class="green">yes</td></tr>
+                <tr><td>Agent isolation</td><td>no</td><td>no</td><td class="yellow">partial</td><td class="green">yes</td></tr>
+                <tr><td>cmux native</td><td>no</td><td>no</td><td>no</td><td class="green">yes</td></tr>
+                <tr><td>Telegram UI</td><td>no</td><td>no</td><td>no</td><td class="green">yes</td></tr>
+                <tr><td>Open source</td><td class="green">yes</td><td class="green">yes</td><td>no</td><td class="green">yes</td></tr>
+                <tr><td>Local only</td><td class="green">yes</td><td class="green">yes</td><td>no</td><td class="green">yes</td></tr>
+                <tr><td>Free core</td><td class="green">yes</td><td class="green">yes</td><td class="yellow">partial</td><td class="green">yes</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-slide="7">
+        <div class="slide-inner roadmap-grid lang-block">
+          <div class="roadmap-left">
+            <div class="slide-title">
+              <span class="en">v0.1 — Today</span>
+              <span class="ko">v0.1 — 오늘</span>
+            </div>
+            <div class="roadmap-badge"><span>live</span></div>
+            <ul class="roadmap-list">
+              <li>breach-drill (Core)</li>
+              <li>Telegram bot (SENTINEL)</li>
+              <li>cmux workspace (Enhanced)</li>
+              <li>MIT open source</li>
+            </ul>
+          </div>
+          <div class="roadmap-right">
+            <div class="slide-title" style="font-size:34px;">
+              <span class="en">Next</span>
+              <span class="ko">다음</span>
+            </div>
+            <ul class="timeline-list">
+              <li><strong>v0.2</strong> ClawHub skill (460K+ users)<br>Ghostty / tmux support</li>
+              <li><strong>v0.3</strong> OAuth app audit<br>Supply chain monitor</li>
+              <li><strong>v1.0</strong> Web dashboard<br>Pro + Team plans</li>
+            </ul>
+            <div class="roadmap-foot">
+              <span class="en">Open source. Ship fast.</span>
+              <span class="ko">오픈소스. 빠르게 출시.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-slide="8">
+        <div class="slide-inner close-slide lang-block">
+          <div>
+            <div class="close-quote cursor-after">
+              <span class="en">The security layer<br>OpenClaw<br>never shipped.</span>
+              <span class="ko">OpenClaw가<br>끝내 출시하지 못한<br>보안 레이어.</span>
+            </div>
+            <div class="close-meta">
+              <div class="close-version">credmux 0.1</div>
+              <div class="close-link">github.com/baekho-lim/credmux</div>
+              <div class="close-foot">
+                <span class="en">Open source · Local first · Agent native<br>Built at CMUX × AIM Intelligence Hackathon Seoul · 2026</span>
+                <span class="ko">오픈소스 · 로컬 퍼스트 · 에이전트 네이티브<br>CMUX × AIM Intelligence Hackathon Seoul · 2026</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="left-controls">
+    <button class="nav-arrow" id="prevBtn" aria-label="Previous slide">←</button>
+    <button class="nav-arrow" id="nextBtn" aria-label="Next slide">→</button>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="right-controls">
+    <div class="progress" id="progress">1 / 8</div>
+  </div>
+</div>
+
+<div class="overview" id="overview">
+  <div class="overview-head">
+    <div class="overview-title">credmux deck</div>
+    <div class="chip">Esc close overview</div>
+  </div>
+  <div class="overview-grid" id="overviewGrid"></div>
+</div>
+
+<script>
+const totalSlides = 8;
+const slides = [...document.querySelectorAll(".slide")];
+const dotsRoot = document.getElementById("dots");
+const progress = document.getElementById("progress");
+const overview = document.getElementById("overview");
+const overviewGrid = document.getElementById("overviewGrid");
+const typedTitle = document.getElementById("typedTitle");
+const terminalTyping = document.getElementById("terminalTyping");
+
+let currentSlide = 0;
+let currentLang = localStorage.getItem("credmux-deck-lang") || "en";
+let solutionStep = 0;
+let titleTyped = false;
+
+const overviewTitles = [
+  "Title",
+  "Problem",
+  "Gap",
+  "Solution",
+  "Demo Cue",
+  "Differentiation",
+  "Roadmap",
+  "Close",
+];
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem("credmux-deck-lang", lang);
+  document.querySelectorAll(".lang-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.textContent.toLowerCase() === lang);
+  });
+  document.querySelectorAll(".en").forEach((el) => {
+    el.style.display = lang === "en" ? "" : "none";
+  });
+  document.querySelectorAll(".ko").forEach((el) => {
+    el.style.display = lang === "ko" ? "" : "none";
+  });
+}
+
+function buildDots() {
+  for (let i = 0; i < totalSlides; i += 1) {
+    const dot = document.createElement("button");
+    dot.className = "dot";
+    dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
+    dot.addEventListener("click", () => goToSlide(i));
+    dotsRoot.appendChild(dot);
+  }
+}
+
+function buildOverview() {
+  overviewTitles.forEach((title, index) => {
+    const card = document.createElement("button");
+    card.className = "overview-card";
+    card.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span><strong>${title}</strong>`;
+    card.addEventListener("click", () => {
+      toggleOverview(false);
+      goToSlide(index);
+    });
+    overviewGrid.appendChild(card);
+  });
+}
+
+function updateUI() {
+  slides.forEach((slide, index) => {
+    slide.classList.toggle("active", index === currentSlide);
+  });
+
+  [...dotsRoot.children].forEach((dot, index) => {
+    dot.classList.toggle("active", index === currentSlide);
+  });
+
+  [...overviewGrid.children].forEach((card, index) => {
+    card.classList.toggle("active", index === currentSlide);
+  });
+
+  progress.textContent = `${currentSlide + 1} / ${totalSlides}`;
+  runSlideEffects();
+}
+
+function goToSlide(index) {
+  currentSlide = Math.max(0, Math.min(totalSlides - 1, index));
+  if (currentSlide !== 3) {
+    resetSolutionStep();
+  }
+  updateUI();
+}
+
+function nextAction() {
+  if (currentSlide === 3 && solutionStep < 3) {
+    revealSolutionStep(solutionStep + 1);
+    return;
+  }
+  if (currentSlide < totalSlides - 1) {
+    goToSlide(currentSlide + 1);
+  }
+}
+
+function prevAction() {
+  if (currentSlide === 3 && solutionStep > 0) {
+    revealSolutionStep(solutionStep - 1);
+    return;
+  }
+  if (currentSlide > 0) {
+    goToSlide(currentSlide - 1);
+  }
+}
+
+function revealSolutionStep(step) {
+  solutionStep = Math.max(0, Math.min(3, step));
+  const rows = [...document.querySelectorAll(".solution-row")];
+  rows.forEach((row, index) => {
+    const rowStep = index + 1;
+    row.classList.toggle("revealed", rowStep <= solutionStep);
+    row.classList.toggle("active-step", rowStep === solutionStep);
+  });
+}
+
+function resetSolutionStep() {
+  solutionStep = 0;
+  revealSolutionStep(0);
+}
+
+function runTypewriter(el, text, speed = 42) {
+  el.textContent = "";
+  let i = 0;
+  const tick = () => {
+    el.textContent = text.slice(0, i);
+    i += 1;
+    if (i <= text.length) {
+      window.setTimeout(tick, speed);
+    }
+  };
+  tick();
+}
+
+function runSlideEffects() {
+  if (currentSlide === 0 && !titleTyped) {
+    titleTyped = true;
+    runTypewriter(typedTitle, "credmux", 120);
+  }
+  if (currentSlide === 3) {
+    const line = currentLang === "ko" ? "🚨 Vercel 침해 감지" : "🚨 Vercel breach detected";
+    runTypewriter(terminalTyping, line, 44);
+  }
+}
+
+function toggleOverview(force) {
+  const open = typeof force === "boolean" ? force : !overview.classList.contains("open");
+  overview.classList.toggle("open", open);
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.();
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+document.getElementById("nextBtn").addEventListener("click", nextAction);
+document.getElementById("prevBtn").addEventListener("click", prevAction);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowRight" || event.key === " ") {
+    event.preventDefault();
+    if (!overview.classList.contains("open")) nextAction();
+    return;
+  }
+  if (event.key === "ArrowLeft" || event.key === "Backspace") {
+    event.preventDefault();
+    if (!overview.classList.contains("open")) prevAction();
+    return;
+  }
+  if (event.key.toLowerCase() === "f") {
+    event.preventDefault();
+    toggleFullscreen();
+    return;
+  }
+  if (event.key === "Escape") {
+    event.preventDefault();
+    toggleOverview();
+  }
+});
+
+document.getElementById("deckStage").addEventListener("click", (event) => {
+  if (overview.classList.contains("open")) return;
+  const interactive = event.target.closest("button, a");
+  if (interactive) return;
+  nextAction();
+});
+
+buildDots();
+buildOverview();
+setLang(currentLang);
+updateUI();
+</script>
+</body>
+</html>
