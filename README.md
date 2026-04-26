@@ -59,15 +59,18 @@ pip install -r bot/requirements.txt
 TELEGRAM_BOT_TOKEN=<your-bot-token> DEMO_HOME=./demo python3 bot/bot.py
 ```
 
-전체 데모 플로우 한 줄:
+전체 데모 플로우 한 줄 — 단계별 [Y/n] 프롬프트로 페이스 조절:
 
 ```bash
-./credmux demo                # Step 1 (평문 노출) → 2 (breach-drill) → 3 (Telegram cue)
+./credmux demo                # 3-step 인터랙티브 (1분)
+./credmux demo --auto         # 프롬프트 없이 자동 실행 (CI / 에이전트)
 ```
+
+각 단계마다 한 줄 narrative + 명령 출력. Enter만 눌러도 진행.
 
 ### Run from any AI agent
 
-Codex / Kimi / Claude Code 같은 에이전트 터미널에서 실행하고 **결과를 자동 컨설팅** 받기 — [`demo/AGENT-PROMPT.md`](./demo/AGENT-PROMPT.md)의 한국어/영문 프롬프트를 에이전트에 그대로 paste. 에이전트가 명령 실행 → 출력 분석 → 액션 추천까지 한 번에 진행한다.
+Codex / Kimi / Claude Code 같은 에이전트 터미널에서 `./credmux demo --auto` 실행 후 **결과를 자동 컨설팅** 받기 — [`demo/AGENT-PROMPT.md`](./demo/AGENT-PROMPT.md)의 한국어/영문 프롬프트를 에이전트에 그대로 paste.
 
 ## CLI
 
