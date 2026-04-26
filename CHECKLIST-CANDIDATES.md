@@ -16,7 +16,9 @@
 - [x] ~~**`cmux.OpenBrowser` stub 메시지 톤**~~ — Component B 본 구현 완료, stderr fallback 메시지로 교체됨 (2026-04-26)
 - [x] ~~**`breach-drill --json` 플래그**~~ — Component C 작업 시 추가 완료. unknown platform / 빈 findings / TruffleHog 미설치 모두 valid JSON (2026-04-26)
 - [x] ~~**demo/setup.sh 작성**~~ — 5개 플랫폼 더미 생성 + setup.sh 자체가 detector에 안 잡히도록 prefix/suffix 분할 (2026-04-26)
-- [ ] **cmux 실 환경 통합 테스트 부재** — `workspace open` Enhanced 경로(workspace.create, sidebar.set_status, watcher)는 cmux 소켓 없는 현재 환경에선 검증 불가. 데모 직전 cmux 떠 있는 머신에서 1회 smoke-test 필수
+- [ ] **cmux 실 환경 통합 테스트 부재** — `workspace open` Enhanced 경로(workspace.create, sidebar.set_status, watcher)는 cmux 소켓 없는 현재 환경에선 검증 불가. 데모 직전 cmux 떠 있는 머신에서 1회 smoke-test 필수 (Turn 6 테스트 2 partial: Core fallback만 ✓)
+- [ ] **Telegram 실 가동 검증** — Turn 6 테스트 3 partial: deps install/import/boot/handler 데이터 경로 ✓, BotFather 토큰으로 실제 송수신 미검증. 데모 전 봇 한 번 띄워서 /testbreach 응답 확인 필요
+- [ ] **Python 3.13+ feedparser 호환** — feedparser 6.0.10이 stdlib `cgi`(3.13 제거됨) import. `legacy-cgi==2.6.1; python_version >= "3.13"` 추가로 우회. 향후 feedparser가 cgi 의존 제거하면 polyfill 라인 삭제
 - [ ] **watcher의 동일-hit 억제 로직** — `lastHit` 단일 변수로 비교. 서로 다른 토큰이 같은 pane에 같이 나오면 첫 hit 이후 둘째 토큰 알람이 누락될 수 있음. set/map 기반으로 업그레이드 후보
 
 ## 미구현 fallback

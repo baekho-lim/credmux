@@ -2,3 +2,5 @@ python-telegram-bot==20.7
 python-dotenv==1.0.0
 requests==2.31.0
 feedparser==6.0.10
+# Python 3.13+에서 stdlib `cgi` 모듈이 제거됨. feedparser 6.0.10이 의존.
+legacy-cgi==2.6.1; python_version >= "3.13"
