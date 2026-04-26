@@ -39,4 +39,4 @@
 
 - [x] ~~**README.md**~~ — Turn 7에서 작성 완료 (2026-04-26)
 - [ ] **SESSION-LOG.md** — Component A 작업 내역 기록 필요. session end protocol 발동 시
-- [ ] **Go module path 일관성** — `go.mod`는 `github.com/baekho/credmux`인데 실제 GitHub은 `baekho-lim/credmux`. `go install github.com/.../credmux@latest` 동작시키려면 module path를 `baekho-lim`으로 통일 필요. internal import 일괄 수정 + `go build` 재검증. 현재 README는 git clone+go build로 우회
+- [x] ~~**Go module path 일관성**~~ — `baekho-lim/credmux`로 통일 완료. README에 `go install` 옵션 추가 (2026-04-26)

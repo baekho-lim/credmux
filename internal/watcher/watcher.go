@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/baekho/credmux/internal/cmux"
+	"github.com/baekho-lim/credmux/internal/cmux"
 )
 
 // Heuristic patterns: shaped like common API tokens. Not exhaustive — this is

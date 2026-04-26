@@ -34,11 +34,14 @@
 ## Install
 
 ```bash
-brew install trufflehog                          # required (700+ detectors)
+brew install trufflehog                                        # required (700+ detectors)
+
+# Option A — go install (single binary, 가장 간단)
+go install github.com/baekho-lim/credmux@latest
+
+# Option B — clone + build (소스/데모 같이 받기)
 git clone https://github.com/baekho-lim/credmux.git
-cd credmux
-go build -o credmux .
-./credmux --help
+cd credmux && go build -o credmux . && ./credmux --help
 ```
 
 ## Quick start

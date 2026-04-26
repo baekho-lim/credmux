@@ -1,6 +1,6 @@
 package main
 
-import "github.com/baekho/credmux/cmd"
+import "github.com/baekho-lim/credmux/cmd"
 
 func main() {
 	cmd.Execute()

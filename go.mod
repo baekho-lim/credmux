@@ -1,4 +1,4 @@
-module github.com/baekho/credmux
+module github.com/baekho-lim/credmux
 
 go 1.26.2
 

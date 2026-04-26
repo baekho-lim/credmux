@@ -8,9 +8,9 @@ import (
 	"sort"
 	"syscall"
 
-	"github.com/baekho/credmux/internal/cmux"
-	"github.com/baekho/credmux/internal/keychain"
-	"github.com/baekho/credmux/internal/watcher"
+	"github.com/baekho-lim/credmux/internal/cmux"
+	"github.com/baekho-lim/credmux/internal/keychain"
+	"github.com/baekho-lim/credmux/internal/watcher"
 	"github.com/spf13/cobra"
 )
 

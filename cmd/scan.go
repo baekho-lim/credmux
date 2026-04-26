@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/baekho/credmux/internal/trufflehog"
+	"github.com/baekho-lim/credmux/internal/trufflehog"
 	"github.com/spf13/cobra"
 )
 
