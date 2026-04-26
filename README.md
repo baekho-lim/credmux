@@ -59,7 +59,15 @@ pip install -r bot/requirements.txt
 TELEGRAM_BOT_TOKEN=<your-bot-token> DEMO_HOME=./demo python3 bot/bot.py
 ```
 
-전체 데모 플로우는 `bash demo/run_demo.sh` 한 줄.
+전체 데모 플로우 한 줄:
+
+```bash
+./credmux demo                # Step 1 (평문 노출) → 2 (breach-drill) → 3 (Telegram cue)
+```
+
+### Run from any AI agent
+
+Codex / Kimi / Claude Code 같은 에이전트 터미널에서 실행하고 **결과를 자동 컨설팅** 받기 — [`demo/AGENT-PROMPT.md`](./demo/AGENT-PROMPT.md)의 한국어/영문 프롬프트를 에이전트에 그대로 paste. 에이전트가 명령 실행 → 출력 분석 → 액션 추천까지 한 번에 진행한다.
 
 ## CLI
 
@@ -70,6 +78,7 @@ TELEGRAM_BOT_TOKEN=<your-bot-token> DEMO_HOME=./demo python3 bot/bot.py
 | `credmux workspace open <project>` | Core: env injection 안내 / Enhanced: cmux 격리 워크스페이스 |
 | `credmux workspace env <project>` | `eval $(...)` 용 export 라인 출력 |
 | `credmux bot start` | 텔레그램 봇 안내 (실 가동은 `python3 bot/bot.py`) |
+| `credmux demo` | 번들 해커톤 데모 실행 (`demo/run_demo.sh`) |
 
 지원 플랫폼: `vercel`, `github`, `supabase`, `stripe`, `anthropic`
 (현재 데모로 매칭 검증된 detector: Vercel, GitHub. Stripe/Anthropic/Supabase는 [CHECKLIST-CANDIDATES.md](./CHECKLIST-CANDIDATES.md) 참조)

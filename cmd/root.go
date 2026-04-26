@@ -29,4 +29,5 @@ func init() {
 	rootCmd.AddCommand(workspaceCmd)
 	rootCmd.AddCommand(profileCmd)
 	rootCmd.AddCommand(botCmd)
+	rootCmd.AddCommand(demoCmd)
 }
