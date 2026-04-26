@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>credmux - Agent Security Layer</title>
+<meta name="description" content="credmux is a local-first security layer for AI agent workflows. Scan, isolate, and rotate credentials before the breach finds you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #000;
+  --bg2: #0a0a0a;
+  --bg3: #111;
+  --border: #1e1e1e;
+  --green: #00ff88;
+  --red: #ff4444;
+  --yellow: #ffd43b;
+  --text: #f0f0f0;
+  --muted: #666;
+  --dim: #333;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+a { color: inherit; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 40px;
+  background: rgba(0, 0, 0, 0.9);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+
+.logo {
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--green);
+  letter-spacing: -0.5px;
+  text-decoration: none;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gh-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--dim);
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.gh-btn:hover { border-color: var(--green); color: var(--green); }
+
+.lang-toggle {
+  display: flex;
+  border: 1px solid var(--dim);
+  overflow: hidden;
+}
+
+.lang-btn {
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.lang-btn.active {
+  background: var(--green);
+  color: #000;
+  font-weight: 700;
+}
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 40px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(0, 255, 136, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  color: var(--green);
+  font-size: 12px;
+  margin-bottom: 32px;
+  width: fit-content;
+}
+
+.blink {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.hero h1 {
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: clamp(36px, 6vw, 80px);
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+  max-width: 900px;
+}
+
+.hero h1 span span { color: var(--green); }
+
+.hero-sub {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 640px;
+  margin-bottom: 48px;
+  line-height: 1.8;
+}
+
+.cmd-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 60px;
+}
+
+.cmd-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 20px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  max-width: 640px;
+}
+
+.cmd-box:first-child { border-color: rgba(0, 255, 136, 0.25); }
+
+.cmd-text {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.cmd-text .prompt {
+  color: var(--green);
+  margin-right: 8px;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--dim);
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover { border-color: var(--green); color: var(--green); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+.hero-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hero-meta a {
+  color: var(--dim);
+  text-decoration: none;
+}
+
+.hero-meta a:hover { color: var(--green); }
+
+.ticker {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  padding: 12px 0;
+  background: var(--bg2);
+}
+
+.ticker-inner {
+  display: flex;
+  gap: 60px;
+  animation: ticker 24s linear infinite;
+  width: max-content;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ticker-item .dot { color: var(--red); }
+.ticker-item strong { color: var(--text); }
+
+.tabs-wrapper {
+  position: sticky;
+  top: 57px;
+  z-index: 90;
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  padding: 0 40px;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--green); border-color: var(--green); }
+
+.tab-panel {
+  display: none;
+  padding: 64px 40px;
+  max-width: 1000px;
+}
+
+.tab-panel.active { display: block; }
+
+h2 {
+  font-family: "Syne", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green);
+  margin: 40px 0 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+p {
+  color: var(--muted);
+  margin-bottom: 16px;
+  line-height: 1.8;
+}
+
+.section-desc {
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 40px;
+  max-width: 680px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+.card {
+  background: var(--bg2);
+  padding: 28px;
+}
+
+.card-icon { font-size: 24px; margin-bottom: 16px; }
+
+.card-title {
+  font-family: "Syne", sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.card-sub {
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.card p { font-size: 13px; }
+
+.mode-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 13px;
+}
+
+.mode-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mode-table th:first-child { color: var(--text); }
+
+.mode-table td {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+}
+
+.mode-table tr:hover td { background: var(--bg2); }
+
+.yes { color: var(--green); }
+.no { color: var(--dim); }
+.partial { color: var(--yellow); }
+
+.compare-wrap { overflow-x: auto; margin: 24px 0; }
+
+.compare-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.compare-table th {
+  padding: 14px 16px;
+  text-align: center;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.compare-table th:first-child { text-align: left; }
+.compare-table th.ours { color: var(--green); border-bottom: 2px solid var(--green); }
+
+.compare-table td {
+  padding: 11px 16px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.compare-table td:first-child { text-align: left; color: var(--muted); }
+.compare-table tr:nth-child(even) td { background: rgba(255, 255, 255, 0.01); }
+
+.code-block {
+  position: relative;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  color: var(--text);
+  white-space: pre;
+}
+
+.code-block .cb-copy {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: transparent;
+  border: 1px solid var(--dim);
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.code-block .cb-copy:hover { border-color: var(--green); color: var(--green); }
+.code-block .cb-copy.copied { border-color: var(--green); color: var(--green); }
+
+.comment { color: var(--dim); }
+.kw { color: var(--green); }
+
+.timeline {
+  position: relative;
+  padding-left: 24px;
+  margin: 24px 0;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.tl-item {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.tl-item::before {
+  content: "";
+  position: absolute;
+  left: -28px; top: 6px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--dim);
+  border: 1px solid var(--border);
+}
+
+.tl-item.current::before {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.tl-version {
+  font-family: "Syne", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.tl-version .tag {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--green);
+  background: rgba(0, 255, 136, 0.08);
+  padding: 2px 8px;
+  margin-left: 10px;
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+.tl-date {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.tl-items { list-style: none; }
+
+.tl-items li {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 3px 0;
+}
+
+.tl-items li::before {
+  content: "-> ";
+  color: var(--green);
+}
+
+.split-demo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+.split-pane {
+  background: var(--bg2);
+  padding: 24px;
+}
+
+.split-pane-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.split-pane.enhanced .split-pane-title { color: var(--green); }
+
+.terminal-line {
+  font-size: 13px;
+  padding: 3px 0;
+}
+
+.terminal-line .p { color: var(--green); }
+.terminal-line .out { color: var(--muted); padding-left: 16px; }
+.terminal-line .ok { color: var(--green); padding-left: 16px; }
+.terminal-line .warn { color: var(--yellow); padding-left: 16px; }
+.terminal-line .err { color: var(--red); padding-left: 16px; }
+
+.cmd-ref { margin: 24px 0; }
+
+.cmd-ref-item {
+  border: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.cmd-ref-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 20px;
+  background: var(--bg2);
+  flex-wrap: wrap;
+}
+
+.cmd-ref-name {
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cmd-ref-desc {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.cmd-ref-body {
+  padding: 12px 20px 14px;
+  font-size: 12px;
+  color: var(--dim);
+  border-top: 1px solid var(--border);
+}
+
+.platform-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.ptag {
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ptag.supported {
+  border-color: rgba(0, 255, 136, 0.25);
+  color: var(--green);
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.footer-left .logo-f {
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--green);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.footer-left p {
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  font-size: 12px;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--green); }
+
+@media (max-width: 700px) {
+  header { padding: 14px 20px; }
+  .hero { padding: 100px 20px 60px; }
+  .tab-panel { padding: 48px 20px; }
+  .tabs { padding: 0 20px; }
+  footer { padding: 32px 20px; }
+  .split-demo { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 36px; letter-spacing: -1px; }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in:nth-child(1) { animation-delay: 0.1s; }
+.fade-in:nth-child(2) { animation-delay: 0.2s; }
+.fade-in:nth-child(3) { animation-delay: 0.3s; }
+.fade-in:nth-child(4) { animation-delay: 0.4s; }
+</style>
+</head>
+<body>
+<header>
+  <a href="#" class="logo">credmux</a>
+  <div class="header-right">
+    <a href="https://github.com/baekho-lim/credmux" class="gh-btn" target="_blank" rel="noreferrer">
+      ★ GitHub
+    </a>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ko')">KO</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-badge fade-in">
+    <span class="blink"></span>
+    <span class="en">Launched at CMUX x AIM Intelligence Hackathon Seoul · April 26, 2026</span>
+    <span class="ko" style="display:none">CMUX x AIM Intelligence 해커톤 서울 · 2026년 4월 26일 런칭</span>
+  </div>
+  <h1 class="fade-in">
+    <span class="en">Scan, isolate,<br>and rotate your<br><span>agent credentials</span><br>before the breach finds you.</span>
+    <span class="ko" style="display:none">해킹 소식이 뜨기 전에,<br>내 <span>에이전트 토큰을</span><br>먼저 지킵니다.</span>
+  </h1>
+  <p class="hero-sub fade-in">
+    <span class="en">When a platform gets hacked, most developers spend hours figuring out which projects are affected. credmux turns that into a local-first drill: scan the machine, filter the impacted tokens, and jump straight to rotation.</span>
+    <span class="ko" style="display:none">플랫폼이 해킹됐을 때, 대부분의 개발자는 어떤 프로젝트가 영향받는지 파악하는 데 몇 시간을 씁니다. credmux는 그 과정을 로컬 중심 보안 드릴로 바꿉니다. 머신을 스캔하고, 영향받은 토큰만 추려서, 바로 교체로 연결합니다.</span>
+  </p>
+  <div class="cmd-group fade-in">
+    <div class="cmd-box">
+      <span class="cmd-text"><span class="prompt">$</span>go build -o credmux .</span>
+      <button class="copy-btn" onclick="copyCmd(this, 'go build -o credmux .')">copy</button>
+    </div>
+    <div class="cmd-box">
+      <span class="cmd-text"><span class="prompt">$</span>DEMO_HOME=./demo ./credmux breach-drill vercel</span>
+      <button class="copy-btn" onclick="copyCmd(this, 'DEMO_HOME=./demo ./credmux breach-drill vercel')">copy</button>
+    </div>
+  </div>
+  <p class="hero-meta fade-in">
+    <span class="en">No signup. No cloud dependency. <a href="https://github.com/baekho-lim/credmux" target="_blank" rel="noreferrer">Open source</a>. Built for live demos and real agent workflows.</span>
+    <span class="ko" style="display:none">회원가입 없음. 클라우드 의존 없음. <a href="https://github.com/baekho-lim/credmux" target="_blank" rel="noreferrer">오픈소스</a>. 발표 데모와 실제 에이전트 워크플로우를 위해 만들었습니다.</span>
+  </p>
+</section>
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="dot">●</span> <strong>Vercel breached</strong> April 19, 2026</span>
+    <span class="ticker-item"><span class="dot">●</span> <strong>28.6M secrets</strong> leaked on GitHub in 2025</span>
+    <span class="ticker-item"><span class="dot">●</span> <strong>63%</strong> of vibe coders are non-developers</span>
+    <span class="ticker-item"><span class="dot">●</span> OpenClaw <strong>CVE-2026-25253</strong> CVSS 8.8</span>
+    <span class="ticker-item"><span class="dot">●</span> ClawHavoc: <strong>800+ malicious skills</strong> on ClawHub</span>
+    <span class="ticker-item"><span class="dot">●</span> AI code creates more secret-spill risk than baseline workflows</span>
+    <span class="ticker-item"><span class="dot">●</span> <strong>Vercel breached</strong> April 19, 2026</span>
+    <span class="ticker-item"><span class="dot">●</span> <strong>28.6M secrets</strong> leaked on GitHub in 2025</span>
+    <span class="ticker-item"><span class="dot">●</span> <strong>63%</strong> of vibe coders are non-developers</span>
+    <span class="ticker-item"><span class="dot">●</span> OpenClaw <strong>CVE-2026-25253</strong> CVSS 8.8</span>
+    <span class="ticker-item"><span class="dot">●</span> ClawHavoc: <strong>800+ malicious skills</strong> on ClawHub</span>
+    <span class="ticker-item"><span class="dot">●</span> AI code creates more secret-spill risk than baseline workflows</span>
+  </div>
+</div>
+
+<div class="tabs-wrapper">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('overview')">
+      <span class="en">Overview</span><span class="ko" style="display:none">개요</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('compare')">
+      <span class="en">Compare</span><span class="ko" style="display:none">비교</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('cmux')">cmux Synergy</button>
+    <button class="tab-btn" onclick="switchTab('roadmap')">
+      <span class="en">Roadmap</span><span class="ko" style="display:none">로드맵</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('docs')">Docs</button>
+  </div>
+</div>
+
+<div class="tab-panel active" id="tab-overview">
+  <h2><span class="en">How it works</span><span class="ko" style="display:none">작동 방식</span></h2>
+  <p class="section-desc">
+    <span class="en">Three components. Two modes. One breach drill.</span>
+    <span class="ko" style="display:none">3개 컴포넌트. 2가지 모드. 침해 대응 드릴 한 번.</span>
+  </p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🛡️</div>
+      <div class="card-title">SENTINEL</div>
+      <div class="card-sub">Breach Notifier</div>
+      <p class="en">A platform gets hacked. Your Telegram bot tells you first. Tap a button. Run the drill. See impacted files and rotation steps without touching terminal UX if you do not want to.</p>
+      <p class="ko" style="display:none">플랫폼이 해킹됩니다. Telegram 봇이 먼저 알려줍니다. 버튼을 누르면 드릴이 실행됩니다. 터미널 없이도 영향 파일과 교체 단계를 확인할 수 있습니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <div class="card-title">VAULT</div>
+      <div class="card-sub">Discovery + Rotation</div>
+      <p class="en">TruffleHog-backed scanning across your local machine. Finds token-shaped secrets in real files, filters by breached platform, masks the output, and points you at the right dashboard.</p>
+      <p class="ko" style="display:none">로컬 머신 전체를 TruffleHog 기반으로 스캔합니다. 실제 파일의 시크릿을 찾고, 침해 플랫폼 기준으로 추리고, 마스킹해서 보여준 뒤 올바른 교체 대시보드로 연결합니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔐</div>
+      <div class="card-title">GUARDIAN</div>
+      <div class="card-sub">Agent Isolation</div>
+      <p class="en">Each project gets its own credential boundary. In cmux, credmux opens an isolated workspace, sets live sidebar state, and watches pane output for secret-shaped leaks.</p>
+      <p class="ko" style="display:none">프로젝트마다 자격증명 경계를 둡니다. cmux에서는 격리 워크스페이스를 열고, 사이드바 상태를 갱신하고, pane 출력에서 시크릿 형태를 실시간 감시합니다.</p>
+    </div>
+  </div>
+
+  <h3><span class="en">Core vs Enhanced Mode</span><span class="ko" style="display:none">Core vs Enhanced 모드</span></h3>
+  <table class="mode-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Core Mode <span style="font-weight:400;color:var(--dim)">(any terminal)</span></th>
+        <th>Enhanced Mode <span style="font-weight:400;color:var(--green)">+ cmux</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>breach-drill</td><td class="yes">yes</td><td class="yes">yes</td></tr>
+      <tr><td>Telegram breach bot</td><td class="yes">yes</td><td class="yes">yes</td></tr>
+      <tr><td>Filesystem scan</td><td class="yes">yes</td><td class="yes">yes</td></tr>
+      <tr><td>macOS Keychain storage</td><td class="yes">yes</td><td class="yes">yes</td></tr>
+      <tr><td>cmux sidebar live status</td><td class="no">-</td><td class="yes">yes</td></tr>
+      <tr><td>Real-time agent watcher</td><td class="no">-</td><td class="yes">yes</td></tr>
+      <tr><td>Workspace isolation</td><td class="partial">shell fallback</td><td class="yes">yes</td></tr>
+      <tr><td>Browser auto-open</td><td class="no">-</td><td class="yes">yes</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="en">Demo-proven platform coverage</span><span class="ko" style="display:none">데모 검증된 플랫폼 범위</span></h3>
+  <div class="platform-grid">
+    <span class="ptag supported">vercel</span>
+    <span class="ptag supported">github</span>
+    <span class="ptag">supabase (research)</span>
+    <span class="ptag">stripe (research)</span>
+    <span class="ptag">anthropic (research)</span>
+  </div>
+
+  <h3><span class="en">Who is credmux for?</span><span class="ko" style="display:none">누구를 위한 도구인가</span></h3>
+  <div class="cards">
+    <div class="card">
+      <div class="card-title"><span class="en">Terminal vibe coders</span><span class="ko" style="display:none">터미널 바이브코더</span></div>
+      <p class="en">Running Claude Code, cmux, OpenClaw, Hermes. Multiple projects. Multiple .env files. Wants a security layer around live agent sessions.</p>
+      <p class="ko" style="display:none">Claude Code, cmux, OpenClaw, Hermes 사용자. 프로젝트 여러 개. .env 파일 수십 개. 라이브 에이전트 세션 위에 보안 레이어가 필요합니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="en">Non-developer builders</span><span class="ko" style="display:none">비개발자 빌더</span></div>
+      <p class="en">Claude Cowork, Lovable, Bolt.new users. Telegram is their workflow. No terminal required to understand whether a breach affects their work.</p>
+      <p class="ko" style="display:none">Claude Cowork, Lovable 사용자. Telegram이 주 워크플로우입니다. 침해가 내 작업에 영향을 주는지 확인하는 데 터미널이 필요 없습니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="en">Agent ecosystem builders</span><span class="ko" style="display:none">에이전트 생태계 빌더</span></div>
+      <p class="en">Skill developers and community operators who need project-scoped credential boundaries instead of one giant shared secret pile.</p>
+      <p class="ko" style="display:none">스킬 개발자와 커뮤니티 운영자. 거대한 공유 시크릿 더미 대신 프로젝트 단위 자격증명 경계가 필요합니다.</p>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-compare">
+  <h2><span class="en">What credmux adds on top of scanning tools</span><span class="ko" style="display:none">credmux가 스캐너 위에 더하는 것</span></h2>
+  <p class="section-desc en">Existing tools scan secrets well. credmux turns secret discovery into a live incident-response workflow.</p>
+  <p class="section-desc ko" style="display:none">기존 도구는 시크릿 스캔을 잘합니다. credmux는 그 스캔을 라이브 침해 대응 워크플로우로 바꿉니다.</p>
+
+  <div class="compare-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Gitleaks</th>
+          <th>TruffleHog</th>
+          <th>Generic secret manager</th>
+          <th class="ours">credmux</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Git history scan</td><td class="yes">yes</td><td class="yes">yes</td><td class="no">-</td><td class="yes">yes</td></tr>
+        <tr><td>Filesystem scan</td><td class="partial">limited</td><td class="yes">yes</td><td class="no">-</td><td class="yes">yes</td></tr>
+        <tr><td>Platform-specific breach drill</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">yes</td></tr>
+        <tr><td>Telegram / no-CLI alert path</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">yes</td></tr>
+        <tr><td>Per-project token isolation</td><td class="no">-</td><td class="no">-</td><td class="partial">storage only</td><td class="yes">yes</td></tr>
+        <tr><td>Runtime pane watcher</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">yes</td></tr>
+        <tr><td>cmux native integration</td><td class="no">-</td><td class="no">-</td><td class="no">-</td><td class="yes">yes</td></tr>
+        <tr><td>Local-first workflow</td><td class="yes">yes</td><td class="yes">yes</td><td class="partial">varies</td><td class="yes">yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="en">The positioning</span><span class="ko" style="display:none">포지셔닝</span></h3>
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">Gitleaks</div>
+      <p class="en">Strong at repository-focused secret detection. Not designed as a live breach workflow or agent isolation layer.</p>
+      <p class="ko" style="display:none">레포 중심 시크릿 탐지에 강합니다. 라이브 침해 워크플로우나 에이전트 격리 레이어로 설계된 도구는 아닙니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">TruffleHog</div>
+      <p class="en">The scanning engine credmux builds on. Excellent detector coverage and verification. credmux wraps it with incident filtering, UX, and rotation flow.</p>
+      <p class="ko" style="display:none">credmux가 기반으로 삼는 스캔 엔진입니다. detector 범위와 검증이 강력합니다. credmux는 여기에 사고 필터링, UX, 교체 플로우를 더합니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">credmux</div>
+      <p class="en">A local, demo-ready agent security workflow: detect, notify, isolate, rotate.</p>
+      <p class="ko" style="display:none">로컬 중심의 에이전트 보안 워크플로우입니다. 탐지, 알림, 격리, 교체를 하나로 묶습니다.</p>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-cmux">
+  <h2>Built on cmux primitives.<br>Stronger together.</h2>
+  <p class="section-desc en">credmux works without cmux. With cmux, it becomes a native security layer for your agent workspace.</p>
+  <p class="section-desc ko" style="display:none">credmux는 cmux 없이도 작동합니다. cmux가 있으면, 에이전트 워크스페이스의 네이티브 보안 레이어가 됩니다.</p>
+
+  <h3><span class="en">Side by side</span><span class="ko" style="display:none">비교</span></h3>
+  <div class="split-demo">
+    <div class="split-pane">
+      <div class="split-pane-title">Core Mode · any terminal</div>
+      <div class="terminal-line"><span class="p">$</span> credmux breach-drill vercel</div>
+      <div class="terminal-line"><span class="out">scan -> filter -> mask -> rotation URL</span></div>
+      <div class="terminal-line"><span class="out">works with plain shell fallback</span></div>
+      <div class="terminal-line"><span class="out">&nbsp;</span></div>
+      <div class="terminal-line"><span class="out">No cmux required.</span></div>
+    </div>
+    <div class="split-pane enhanced">
+      <div class="split-pane-title">Enhanced Mode · cmux detected</div>
+      <div class="terminal-line"><span class="p">$</span> credmux workspace open demo</div>
+      <div class="terminal-line"><span class="err">sidebar status: "locked / tokens isolated"</span></div>
+      <div class="terminal-line"><span class="warn">notification ring when leak pattern appears</span></div>
+      <div class="terminal-line"><span class="ok">capture-pane watcher polling every 3s</span></div>
+      <div class="terminal-line"><span class="ok">browser.open for rotation dashboard</span></div>
+    </div>
+  </div>
+
+  <h3><span class="en">cmux socket API used by credmux</span><span class="ko" style="display:none">credmux가 사용하는 cmux API</span></h3>
+  <table class="mode-table">
+    <thead>
+      <tr><th>Method</th><th>Used for</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="yes">notification.create</td><td>Red alert ring when breach or secret-shaped output is detected</td></tr>
+      <tr><td class="yes">workspace.create</td><td>Per-project isolated workspace creation</td></tr>
+      <tr><td class="yes">sidebar.set_status</td><td>Live workspace security state</td></tr>
+      <tr><td class="yes">sidebar.log</td><td>Security audit events in sidebar</td></tr>
+      <tr><td class="yes">surface.capture_pane</td><td>Monitor agent output in real time</td></tr>
+      <tr><td class="yes">browser.open</td><td>One-click token rotation dashboard</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="en">Why this matters in a demo</span><span class="ko" style="display:none">발표 데모에서 중요한 이유</span></h3>
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">Visible state</div>
+      <p class="en">Judges can see security status directly in the cmux sidebar instead of trusting a hidden background process.</p>
+      <p class="ko" style="display:none">심사위원은 숨겨진 백그라운드 프로세스가 아니라 cmux 사이드바에서 보안 상태를 바로 볼 수 있습니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Fast narrative</div>
+      <p class="en">Breach alert, scan result, isolated workspace, and rotation jump all line up in one flow.</p>
+      <p class="ko" style="display:none">침해 알림, 스캔 결과, 격리 워크스페이스, 교체 이동이 한 흐름으로 이어집니다.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Composable primitive</div>
+      <p class="en">credmux does not fight cmux. It composes around its socket primitives and turns them into security UX.</p>
+      <p class="ko" style="display:none">credmux는 cmux와 경쟁하지 않습니다. 소켓 primitive 위에 조합되어 보안 UX를 만듭니다.</p>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-roadmap">
+  <h2><span class="en">credmux is open source. Here's where we're going.</span><span class="ko" style="display:none">credmux는 오픈소스입니다. 앞으로의 계획.</span></h2>
+  <p class="section-desc en">v0.1 is a strong demo cut. The next steps are hardening, more detectors, and broader agent integration.</p>
+  <p class="section-desc ko" style="display:none">v0.1은 데모 기준으로 강한 컷입니다. 다음 단계는 하드닝, 더 많은 detector, 더 넓은 에이전트 통합입니다.</p>
+
+  <div class="timeline">
+    <div class="tl-item current">
+      <div class="tl-version">v0.1 <span class="tag">TODAY</span></div>
+      <div class="tl-date">April 26, 2026 — CMUX x AIM Hackathon Seoul</div>
+      <ul class="tl-items">
+        <li>credmux breach-drill [platform]</li>
+        <li>Telegram breach notification bot (SENTINEL)</li>
+        <li>credmux workspace open with cmux Enhanced Mode</li>
+        <li>Secret watcher powered by capture-pane polling</li>
+        <li>macOS Keychain storage path</li>
+      </ul>
+    </div>
+    <div class="tl-item">
+      <div class="tl-version">v0.2</div>
+      <div class="tl-date">May 2026</div>
+      <ul class="tl-items">
+        <li>Detector coverage hardening for Stripe, Anthropic, Supabase</li>
+        <li>Ghostty and tmux-oriented fallback UX</li>
+        <li>Token expiry reminders</li>
+        <li>1Password optional backend</li>
+      </ul>
+    </div>
+    <div class="tl-item">
+      <div class="tl-version">v0.3</div>
+      <div class="tl-date">June 2026</div>
+      <ul class="tl-items">
+        <li>OAuth connected-app audit</li>
+        <li>Supply chain env-var access monitor</li>
+        <li>Expanded localization</li>
+      </ul>
+    </div>
+    <div class="tl-item">
+      <div class="tl-version">v1.0</div>
+      <div class="tl-date">Q4 2026</div>
+      <ul class="tl-items">
+        <li>Broader desktop and editor integration</li>
+        <li>Agent marketplace hooks</li>
+        <li>Web dashboard for non-terminal operators</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-docs">
+  <h2>Quick Reference</h2>
+  <p class="section-desc en">Everything you need to run the current demo build.</p>
+  <p class="section-desc ko" style="display:none">현재 데모 빌드를 실행하는 데 필요한 요약입니다.</p>
+
+  <h3>Installation</h3>
+  <div class="code-block">
+    <button class="cb-copy" onclick="copyBlock(this)">copy</button>
+    <pre><span class="comment"># Prerequisite</span>
+brew install trufflehog
+
+<span class="comment"># Build the CLI</span>
+go build -o credmux .
+
+<span class="comment"># Demo setup</span>
+bash demo/setup.sh
+
+<span class="comment"># Run the breach drill</span>
+DEMO_HOME=./demo ./credmux breach-drill vercel</pre>
+  </div>
+
+  <h3><span class="en">Commands</span><span class="ko" style="display:none">명령어</span></h3>
+  <div class="cmd-ref">
+    <div class="cmd-ref-item">
+      <div class="cmd-ref-header">
+        <span class="cmd-ref-name">credmux scan [path]</span>
+        <span class="cmd-ref-desc en">Scan a directory with TruffleHog and mask results</span>
+        <span class="cmd-ref-desc ko" style="display:none">TruffleHog로 디렉토리 스캔 후 결과 마스킹</span>
+      </div>
+      <div class="cmd-ref-body">Defaults to DEMO_HOME, then HOME, then current directory.</div>
+    </div>
+    <div class="cmd-ref-item">
+      <div class="cmd-ref-header">
+        <span class="cmd-ref-name">credmux breach-drill [platform]</span>
+        <span class="cmd-ref-desc en">Scan + filter by platform + guide rotation</span>
+        <span class="cmd-ref-desc ko" style="display:none">스캔 → 플랫폼 필터 → 교체 안내</span>
+      </div>
+      <div class="cmd-ref-body">Current demo-safe platforms: vercel, github. JSON output is available for Telegram bot integration.</div>
+    </div>
+    <div class="cmd-ref-item">
+      <div class="cmd-ref-header">
+        <span class="cmd-ref-name">credmux workspace open [project]</span>
+        <span class="cmd-ref-desc en">Isolate credentials per project</span>
+        <span class="cmd-ref-desc ko" style="display:none">프로젝트별 자격증명 격리</span>
+      </div>
+      <div class="cmd-ref-body">Loads project tokens from Keychain. In cmux: creates workspace, sets sidebar status, and can activate the watcher.</div>
+    </div>
+    <div class="cmd-ref-item">
+      <div class="cmd-ref-header">
+        <span class="cmd-ref-name">python3 bot/bot.py</span>
+        <span class="cmd-ref-desc en">Start Telegram breach notification bot</span>
+        <span class="cmd-ref-desc ko" style="display:none">Telegram 침해 알림 봇 시작</span>
+      </div>
+      <div class="cmd-ref-body">Requires TELEGRAM_BOT_TOKEN. Use /testbreach for the demo flow.</div>
+    </div>
+    <div class="cmd-ref-item">
+      <div class="cmd-ref-header">
+        <span class="cmd-ref-name">credmux profile create [name]</span>
+        <span class="cmd-ref-desc en">Planned profile command</span>
+        <span class="cmd-ref-desc ko" style="display:none">예정된 profile 명령</span>
+      </div>
+      <div class="cmd-ref-body">Stubbed in the current hackathon build. The page marks it as roadmap, not as shipping functionality.</div>
+    </div>
+  </div>
+
+  <h3><span class="en">Environment Variables</span><span class="ko" style="display:none">환경변수</span></h3>
+  <div class="code-block">
+    <pre><span class="kw">TELEGRAM_BOT_TOKEN</span>   Telegram bot token (required for bot)
+<span class="kw">DEMO_HOME</span>            Demo scan root override
+<span class="kw">CMUX_SOCKET_PATH</span>     cmux socket path (default: /tmp/cmux.sock)
+<span class="kw">CMUX_SURFACE_ID</span>      cmux pane surface id for watcher
+<span class="kw">CREDMUX_BINARY</span>       Binary path used by the Telegram bot subprocess</pre>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-left">
+    <span class="logo-f">credmux</span>
+    <p class="en">The local-first security layer for AI agent workflows.<br>Built at CMUX x AIM Intelligence Hackathon Seoul · April 26, 2026</p>
+    <p class="ko" style="display:none">AI 에이전트 워크플로우를 위한 로컬 중심 보안 레이어.<br>CMUX x AIM Intelligence 해커톤 서울 · 2026년 4월 26일</p>
+    <p style="margin-top:8px">MIT License · <a href="https://baekho.io" style="color:var(--dim);text-decoration:none">baekho.io</a></p>
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/baekho-lim/credmux" target="_blank" rel="noreferrer">GitHub</a>
+    <a href="#docs" onclick="switchTab('docs')">Docs</a>
+    <a href="https://baekho.io" target="_blank" rel="noreferrer">baekho.io</a>
+  </div>
+</footer>
+
+<script>
+let currentLang = localStorage.getItem("credmux-lang") || "en";
+const tabs = ["overview", "compare", "cmux", "roadmap", "docs"];
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem("credmux-lang", lang);
+  document.querySelectorAll(".lang-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.textContent.toLowerCase() === lang);
+  });
+  document.querySelectorAll(".en").forEach((el) => {
+    el.style.display = lang === "en" ? "" : "none";
+  });
+  document.querySelectorAll(".ko").forEach((el) => {
+    el.style.display = lang === "ko" ? "" : "none";
+  });
+}
+
+function switchTab(id) {
+  document.querySelectorAll(".tab-panel").forEach((panel) => panel.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
+  const panel = document.getElementById("tab-" + id);
+  if (!panel) return;
+  panel.classList.add("active");
+  const index = tabs.indexOf(id);
+  if (index >= 0) {
+    document.querySelectorAll(".tab-btn")[index].classList.add("active");
+  }
+  history.replaceState(null, "", "#" + id);
+  document.querySelector(".tabs-wrapper").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function copyCmd(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = "copied!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove("copied");
+    }, 2000);
+  });
+}
+
+function copyBlock(btn) {
+  const pre = btn.parentElement.querySelector("pre");
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = "copied!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove("copied");
+    }, 2000);
+  });
+}
+
+setLang(currentLang);
+
+const initialTab = location.hash.replace("#", "");
+if (tabs.includes(initialTab)) {
+  switchTab(initialTab);
+}
+</script>
+</body>
+</html>

@@ -32,6 +32,10 @@ coverage.txt
 demo/shop/
 demo/blog/
 demo/api/
+demo/bot/
+
+# Bot-specific secrets
+bot/.env
 
 # logs
 logs/
