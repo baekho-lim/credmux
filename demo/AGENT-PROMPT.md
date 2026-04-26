@@ -17,7 +17,7 @@
 
 1. 터미널에서 다음 두 명령을 실행하고 출력 전체를 캡처해라:
    bash demo/setup.sh
-   ./credmux demo --auto
+   credmux audit --auto
 
 2. 또한 머신-친화 데이터를 얻기 위해 다음을 실행해라:
    DEMO_HOME=./demo ./credmux breach-drill vercel --json
@@ -45,7 +45,7 @@ You are an AI security consultant. Do this:
 
 1. In the terminal, run and capture full output:
    bash demo/setup.sh
-   ./credmux demo --auto
+   credmux audit --auto
 
 2. Also fetch the machine-readable payload:
    DEMO_HOME=./demo ./credmux breach-drill vercel --json
@@ -71,7 +71,7 @@ Output ≤5 bullets + a tight action table.
 | Step | 누가 | 무엇 |
 |------|------|------|
 | 1 | 발표자 | 에이전트(Codex/Kimi/Claude Code)에 위 한국어 프롬프트 paste |
-| 2 | 에이전트 | `bash demo/setup.sh`, `./credmux demo`, `breach-drill --json` 자동 실행 |
+| 2 | 에이전트 | `bash demo/setup.sh`, `credmux audit`, `breach-drill --json` 자동 실행 |
 | 3 | 에이전트 | 출력 분석 → 한국어 컨설팅 메시지 + 액션 표 |
 | 4 | 발표자 | 스마트폰에서 Telegram `/testbreach` → 비개발자 시연 |
 | 5 | 발표자 | cmux 환경에서 `./credmux workspace open demo` → 사이드바 격리 시연 |

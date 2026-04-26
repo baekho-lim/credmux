@@ -59,29 +59,30 @@ pip install -r bot/requirements.txt
 TELEGRAM_BOT_TOKEN=<your-bot-token> DEMO_HOME=./demo python3 bot/bot.py
 ```
 
-전체 데모 플로우 한 줄 — 단계별 [Y/n] 프롬프트로 페이스 조절:
+credmux의 대표 명령은 **`credmux audit`** — 현재 환경에서 노출된 토큰을 진단하고, 외부 플랫폼 사고 시나리오를 시뮬레이션하면서 단계별로 다음 액션을 추천한다. 3 단계 사이에 [Y/n] 프롬프트가 있어 발표/컨설팅 페이스에 맞다 (Enter면 진행).
 
 ```bash
-./credmux demo                # 3-step 인터랙티브 (1분)
-./credmux demo --auto         # 프롬프트 없이 자동 실행 (CI / 에이전트)
+DEMO_HOME=./demo credmux audit                      # 인터랙티브 (1분)
+DEMO_HOME=./demo credmux audit --auto               # 프롬프트 없이 자동
+credmux audit --platform github                     # 사고 시뮬 대상 변경
 ```
 
-각 단계마다 한 줄 narrative + 명령 출력. Enter만 눌러도 진행.
+**3 단계** — 노출 진단(`scan`) → 사고 대응 시뮬(`breach-drill`) → 지속 보호(Telegram / cmux 격리).
 
 ### Run from any AI agent
 
-Codex / Kimi / Claude Code 같은 에이전트 터미널에서 `./credmux demo --auto` 실행 후 **결과를 자동 컨설팅** 받기 — [`demo/AGENT-PROMPT.md`](./demo/AGENT-PROMPT.md)의 한국어/영문 프롬프트를 에이전트에 그대로 paste.
+Codex / Kimi / Claude Code 같은 에이전트 터미널에서 `credmux audit --auto` 실행 후 **결과를 자동 컨설팅** 받기 — [`demo/AGENT-PROMPT.md`](./demo/AGENT-PROMPT.md)의 한국어/영문 프롬프트를 에이전트에 그대로 paste.
 
 ## CLI
 
 | Command | Description |
 |---------|-------------|
+| `credmux audit` | **대표 명령.** 노출 진단 → 사고 대응 시뮬 → 지속 보호 (3-step 인터랙티브) |
 | `credmux scan [path]` | TruffleHog로 경로 스캔 (마스킹 출력) |
 | `credmux breach-drill <platform>` | 플랫폼별 토큰 필터 + 교체 안내. `--json`으로 머신-친화 |
 | `credmux workspace open <project>` | Core: env injection 안내 / Enhanced: cmux 격리 워크스페이스 |
 | `credmux workspace env <project>` | `eval $(...)` 용 export 라인 출력 |
 | `credmux bot start` | 텔레그램 봇 안내 (실 가동은 `python3 bot/bot.py`) |
-| `credmux demo` | 번들 해커톤 데모 실행 (`demo/run_demo.sh`) |
 
 지원 플랫폼: `vercel`, `github`, `supabase`, `stripe`, `anthropic`
 (현재 데모로 매칭 검증된 detector: Vercel, GitHub. Stripe/Anthropic/Supabase는 [CHECKLIST-CANDIDATES.md](./CHECKLIST-CANDIDATES.md) 참조)
