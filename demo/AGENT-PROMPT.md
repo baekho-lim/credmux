@@ -17,7 +17,7 @@
 
 1. 터미널에서 다음 두 명령을 실행하고 출력 전체를 캡처해라:
    bash demo/setup.sh
-   credmux audit --auto
+   credmux audit
 
 2. 또한 머신-친화 데이터를 얻기 위해 다음을 실행해라:
    DEMO_HOME=./demo ./credmux breach-drill vercel --json
@@ -45,7 +45,7 @@ You are an AI security consultant. Do this:
 
 1. In the terminal, run and capture full output:
    bash demo/setup.sh
-   credmux audit --auto
+   credmux audit
 
 2. Also fetch the machine-readable payload:
    DEMO_HOME=./demo ./credmux breach-drill vercel --json

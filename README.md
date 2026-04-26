@@ -59,19 +59,24 @@ pip install -r bot/requirements.txt
 TELEGRAM_BOT_TOKEN=<your-bot-token> DEMO_HOME=./demo python3 bot/bot.py
 ```
 
-credmux의 대표 명령은 **`credmux audit`** — 현재 환경에서 노출된 토큰을 진단하고, 외부 플랫폼 사고 시나리오를 시뮬레이션하면서 단계별로 다음 액션을 추천한다. 3 단계 사이에 [Y/n] 프롬프트가 있어 발표/컨설팅 페이스에 맞다 (Enter면 진행).
+credmux의 대표 명령은 **`credmux audit`** — 한 번 실행하면 3 단계가 자동 진행되고, 단계마다 마크다운 보고서가 `~/.credmux/reports/<timestamp>/`에 떨어진다. 마지막에 `file://` URL이 출력되고 (`--no-open` 아니면) 기본 마크다운 뷰어로 자동 오픈된다.
 
 ```bash
-DEMO_HOME=./demo credmux audit                      # 인터랙티브 (1분)
-DEMO_HOME=./demo credmux audit --auto               # 프롬프트 없이 자동
-credmux audit --platform github                     # 사고 시뮬 대상 변경
+DEMO_HOME=./demo credmux audit                  # 자동 진행 + 보고서 생성 + 오픈
+credmux audit --platform github                 # 사고 시뮬 대상 변경
+credmux audit --no-open                         # CI / 백그라운드 실행
+credmux audit --target ~/projects               # 실제 프로젝트 디렉토리
 ```
 
-**3 단계** — 노출 진단(`scan`) → 사고 대응 시뮬(`breach-drill`) → 지속 보호(Telegram / cmux 격리).
+생성되는 보고서:
+- `00-summary.md` — 헤드라인 숫자, 단계 링크, 즉시 액션 Top 3
+- `01-exposure.md` — TruffleHog 노출 진단 (detector별 + 영향 파일)
+- `02-breach-response.md` — 플랫폼별 사고 대응 (영향 토큰 + 교체 URL)
+- `03-next-actions.md` — Telegram bot · cmux workspace 가이드
 
 ### Run from any AI agent
 
-Codex / Kimi / Claude Code 같은 에이전트 터미널에서 `credmux audit --auto` 실행 후 **결과를 자동 컨설팅** 받기 — [`demo/AGENT-PROMPT.md`](./demo/AGENT-PROMPT.md)의 한국어/영문 프롬프트를 에이전트에 그대로 paste.
+Codex / Kimi / Claude Code 같은 에이전트 터미널에서 `credmux audit` 실행 후 보고서 마크다운을 읽고 **자동 컨설팅** — [`demo/AGENT-PROMPT.md`](./demo/AGENT-PROMPT.md) 참고.
 
 ## CLI
 
